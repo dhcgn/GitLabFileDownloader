@@ -60,6 +60,8 @@ type settings struct {
 
 func main() {
 	fmt.Println(AppName, "Version:", version)
+	fmt.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
+
 	flag.Parse()
 
 	settings := getSettings()
