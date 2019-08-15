@@ -21,18 +21,25 @@ import (
 
 const (
 	AppName = "GitLab File Downloader"
+
+	flagToken         = "token"
+	flagOutPath       = "outPath"
+	flagBranch        = "branch"
+	flagUrl           = "url"
+	flagProjectNumber = "projectNumber"
+	flagReproFilePath = "reproFilePath"
 )
 
 var (
 	version = "undef"
 
-	tokenPtr    = flag.String("token", ``, "Private-Token")
-	fielPathPtr = flag.String("outPath", ``, "Path to write the file")
-	branchPtr   = flag.String("branch", `master`, "Branch")
+	flagTokenPtr   = flag.String(flagToken, ``, "Private-Token with access right for api and read_repository")
+	flagOutPathPtr = flag.String(flagOutPath, ``, "Path to write file to disk")
+	flagBranchPtr  = flag.String(flagBranch, `master`, "Branch")
 
-	urlPtr                   = flag.String("url", ``, "Url to Api v4, like https://my-git-lap-server.local/api/v4/")
-	projectNumberPtr         = flag.Int("projectNumber", 0, "Url to Api v4")
-	gitLabFilePathInReproPtr = flag.String("reproFilePath", ``, "File path in repro")
+	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
+	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "Url to Api v4")
+	flagReproFilePathPtr = flag.String(flagReproFilePath, ``, "File path in repro")
 )
 
 type GitLapFile struct {
@@ -48,7 +55,7 @@ type settings struct {
 	ApiUrl               string
 	ProjectNumber        string
 	ReproFilePathEscaped string
-	MachineId string
+	MachineId            string
 }
 
 func main() {
@@ -56,8 +63,18 @@ func main() {
 	flag.Parse()
 
 	settings := getSettings()
+	isValid, args := isSettingsValid(settings)
+	if !isValid {
+		fmt.Println("Arguments are missing:", args)
+		fmt.Println("Program will exit!")
+		os.Exit(-1)
+	}
 
-	checkFileLocation(settings.OutFile)
+	exists, dir := testTargetFolder(settings.OutFile)
+	if !exists {
+		fmt.Println("Folder", dir, "doesn't exists. Program will exit.")
+		os.Exit(-1)
+	}
 
 	err, statusCode, status, bodyData := callApi(settings)
 	if err != nil {
@@ -95,7 +112,7 @@ func main() {
 		fmt.Println("File from disk differs to GitLab.")
 	}
 
-	err = ioutil.WriteFile(*fielPathPtr, fileData, 0644)
+	err = ioutil.WriteFile(*flagOutPathPtr, fileData, 0644)
 	if err != nil {
 		fmt.Println("error:", err)
 		os.Exit(-1)
@@ -103,6 +120,28 @@ func main() {
 
 	fmt.Println("New file is copied")
 	os.Exit(0)
+}
+
+func isSettingsValid(settings settings) (bool, []string) {
+	var missingArgs []string
+
+	if settings.PrivateToken == "" {
+		missingArgs = append(missingArgs, flagToken)
+	}
+	if settings.OutFile == "" {
+		missingArgs = append(missingArgs, flagOutPath)
+	}
+	if settings.Branch == "" {
+		missingArgs = append(missingArgs, flagBranch)
+	}
+	if settings.ReproFilePathEscaped == "" {
+		missingArgs = append(missingArgs, flagReproFilePath)
+	}
+	if settings.ApiUrl == "" {
+		missingArgs = append(missingArgs, flagUrl)
+	}
+
+	return len(missingArgs) == 0, missingArgs
 }
 
 func isOldFileEqual(gitLapFile GitLapFile, settings settings) (bool, error) {
@@ -133,7 +172,7 @@ func callApi(settings settings) (error, int, string, []byte) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	apiUrl := *urlPtr + `projects/` + settings.ProjectNumber + `/repository/files/` + settings.ReproFilePathEscaped + `?ref=` + settings.Branch
+	apiUrl := *flagUrlPtr + `projects/` + settings.ProjectNumber + `/repository/files/` + settings.ReproFilePathEscaped + `?ref=` + settings.Branch
 
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
@@ -158,15 +197,14 @@ func callApi(settings settings) (error, int, string, []byte) {
 	return err, resp.StatusCode, resp.Status, body
 }
 
-func checkFileLocation(outFile string) {
-	dir := filepath.Dir(outFile)
+func testTargetFolder(outFile string) (exists bool, dir string) {
+	dir = filepath.Dir(outFile)
 	if _, err := os.Stat(dir); err == nil {
-		fmt.Println("File will be copied to folder", dir, "with file name", filepath.Base(outFile))
-
+		return true, dir
 	} else if os.IsNotExist(err) {
-		fmt.Println("Folder", dir, "doesn't exists. Program will exit.")
-		os.Exit(-1)
+		return false, dir
 	}
+	return false, dir
 }
 
 func getSettings() settings {
@@ -175,12 +213,12 @@ func getSettings() settings {
 		log.Fatal(err)
 	}
 	return settings{
-		PrivateToken:         *tokenPtr,
-		OutFile:              *fielPathPtr,
-		Branch:               *branchPtr,
-		ApiUrl:               *urlPtr,
-		ProjectNumber:        strconv.Itoa(*projectNumberPtr),
-		ReproFilePathEscaped: url.PathEscape(*gitLabFilePathInReproPtr),
-		MachineId: id,
+		PrivateToken:         *flagTokenPtr,
+		OutFile:              *flagOutPathPtr,
+		Branch:               *flagBranchPtr,
+		ApiUrl:               *flagUrlPtr,
+		ProjectNumber:        strconv.Itoa(*flagProjectNumberPtr),
+		ReproFilePathEscaped: url.PathEscape(*flagReproFilePathPtr),
+		MachineId:            id,
 	}
 }
