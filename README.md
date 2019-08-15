@@ -19,3 +19,10 @@ Usage of GitLabDownloader_windows_amd64.exe:
   -url string
         Url to Api v4 (default "https://my-git-lap-server.local/api/v4/")
 ```
+
+## Use Case
+
+You want to save for production configs in a on-promise GitLab instance.
+With this tool you can sabe the config to the desired location (on windows and linux).
+
+The file will be only replaced if the hash is different.
