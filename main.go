@@ -78,47 +78,47 @@ func main() {
 
 	err, statusCode, status, bodyData := callApi(settings)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error:", err)
 		os.Exit(-1)
 	}
 
 	if statusCode != 200 {
-		fmt.Println("Error from API:", statusCode, status)
+		fmt.Println("Error from API call:", statusCode, status)
 		os.Exit(-1)
 	}
 
 	gitLapFile, err := createGitLapFile(err, bodyData)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error:", err)
 		os.Exit(-1)
 	}
 
 	fileData, err := base64.StdEncoding.DecodeString(gitLapFile.Content)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error:", err)
 		os.Exit(-1)
 	}
 
 	isEqual, err := isOldFileEqual(gitLapFile, settings)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error:", err)
 		os.Exit(-1)
 	}
 
 	if isEqual {
-		fmt.Println("No diff, program will exit")
+		fmt.Println("No diff, nothing to do. Program will exit.")
 		os.Exit(1)
 	} else {
-		fmt.Println("File from disk differs to GitLab.")
+		fmt.Println("File from disk differs.")
 	}
 
 	err = ioutil.WriteFile(*flagOutPathPtr, fileData, 0644)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error:", err)
 		os.Exit(-1)
 	}
 
-	fmt.Println("New file is copied")
+	fmt.Println("New file was copied.")
 	os.Exit(0)
 }
 
