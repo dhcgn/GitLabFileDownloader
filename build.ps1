@@ -23,7 +23,7 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
 }
 
 $appName = "GitLabDownloader"
-$version = "0.0.0"
+$version = "1.0.0"
 $goCodeFile = "main.go"
 $publishFolder = "publish"
 $debugFolder = "debug"
@@ -71,7 +71,7 @@ foreach ($item in $platforms ) {
         $extension = ".exe"
     }
     else {
-        $extension = $null
+        $extension = ".bin"
     }
         
     $buildCode = (Join-Path -Path $rootFolder $goCodeFile)
@@ -79,12 +79,17 @@ foreach ($item in $platforms ) {
     $count += 1
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build publish" -PercentComplete ([Double]$count / $maxCount * 100)
 
-    $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $publishFolder, ("{0}_{1}_{2}{3}" -f $appName, $item.GOOS, $item.GOARCH, $extension)))
+    $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $publishFolder, ("{0}_{1}_{2}_{3}{4}" -f $appName, $item.GOOS, $item.GOARCH, $version, $extension)))
     $executeExpression = "go build -ldflags ""-s -w -X main.version={0}"" -o {1} {2}" -f $version, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
 
-    Start-Sleep -Seconds 1
+    if (-not (Test-Path $buildOutput)) {
+        Write-Host "ERROR - Build result is missing!" -ForegroundColor Red
+        continue
+    }
+
+    Start-Sleep -Seconds 1 # Because of stupid AV-Shit 
 
     if ($compressPublish) {
         $count += 1
