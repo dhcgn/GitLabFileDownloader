@@ -2,6 +2,12 @@
 
 Download a file from a GitLab server and save it to disk if file is different.
 
+## Latest
+
+https://dl.equinox.io/dhcgn/gitlabfiledownloader/stable
+
+## Using
+
 ```
 GitLabDownloader_windows_amd64.exe -h
 
