@@ -10,7 +10,7 @@ Build a Go application to various platforms
 
 
 .NOTES
-Don't move this script, is must be in the same folder as main.go.
+Don't move this script, is must be in the root folder.
 
 .LINK
 https://github.com/dhcgn/GoTemplate
@@ -24,17 +24,12 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
 
 $appName = "GitLabDownloader"
 $version = "1.0.0"
-$goCodeFile = "main.go"
 $publishFolder = "publish"
 $debugFolder = "debug"
 $compressPublish = $true
 
 $rootFolder = Split-Path -parent $PSCommandPath
 $upx = [System.IO.Path]::Combine($rootFolder, "build", "tools", "upx.exe" )
-
-$env:GOPATH = $rootFolder
-
-Write-Host $env:GOPATH 
 
 # Just uncomment the platfoms you don't need
 $platforms = @()
@@ -74,7 +69,7 @@ foreach ($item in $platforms ) {
         $extension = ".bin"
     }
         
-    $buildCode = (Join-Path -Path $rootFolder $goCodeFile)
+    $buildCode = (Join-Path -Path $rootFolder "src")
    
     $count += 1
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build publish" -PercentComplete ([Double]$count / $maxCount * 100)
