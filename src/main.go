@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/denisbrodbeck/machineid"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,6 +16,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/denisbrodbeck/machineid"
 )
 
 const (
@@ -28,18 +29,21 @@ const (
 	flagUrl           = "url"
 	flagProjectNumber = "projectNumber"
 	flagReproFilePath = "reproFilePath"
+	flagUpdate        = "update"
 )
 
 var (
 	version = "undef"
 
-	flagTokenPtr   = flag.String(flagToken, ``, "Private-Token with access right for api and read_repository")
+	flagTokenPtr   = flag.String(flagToken, ``, `Private-Token with access right for "api" and "read_repository"`)
 	flagOutPathPtr = flag.String(flagOutPath, ``, "Path to write file to disk")
 	flagBranchPtr  = flag.String(flagBranch, `master`, "Branch")
 
 	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "The Project ID from your project")
 	flagReproFilePathPtr = flag.String(flagReproFilePath, ``, "File path in repro, like src/main.go")
+
+	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 )
 
 type GitLapFile struct {
@@ -64,9 +68,15 @@ func main() {
 
 	if len(os.Args) == 2 && os.Args[1] == "update" {
 		equinoxUpdate()
+		os.Exit(2)
 	}
 
 	flag.Parse()
+
+	if *flagUpdatePtr == true {
+		equinoxUpdate()
+		os.Exit(2)
+	}
 
 	settings := getSettings()
 	isValid, args := isSettingsValid(settings)
