@@ -38,8 +38,8 @@ var (
 	flagBranchPtr  = flag.String(flagBranch, `master`, "Branch")
 
 	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
-	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "Url to Api v4")
-	flagReproFilePathPtr = flag.String(flagReproFilePath, ``, "File path in repro")
+	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "The Project ID from your project")
+	flagReproFilePathPtr = flag.String(flagReproFilePath, ``, "File path in repro, like src/main.go")
 )
 
 type GitLapFile struct {
@@ -61,6 +61,10 @@ type settings struct {
 func main() {
 	fmt.Println(AppName, "Version:", version)
 	fmt.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
+
+	if len(os.Args) == 2 && os.Args[1] == "update" {
+		equinoxUpdate()
+	}
 
 	flag.Parse()
 
