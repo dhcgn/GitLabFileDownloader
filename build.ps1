@@ -75,7 +75,7 @@ foreach ($item in $platforms ) {
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build publish" -PercentComplete ([Double]$count / $maxCount * 100)
 
     $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $publishFolder, ("{0}_{1}_{2}_{3}{4}" -f $appName, $item.GOOS, $item.GOARCH, $version, $extension)))
-    $executeExpression = "go build -ldflags ""-s -w -X main.version={0}"" -o {1} {2}" -f $version, $buildOutput, $buildCode 
+    $executeExpression = "go build -ldflags ""-s -w -X main.version={0}"" -trimpath -o {1} {2}" -f $version, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
 
