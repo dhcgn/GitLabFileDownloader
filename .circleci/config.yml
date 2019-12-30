@@ -19,7 +19,7 @@ jobs:
           keys:
             - go-module-cache-v1-{{ checksum "/workspace/src/go.sum" }}
             - go-module-cache-v1-
-      - run: cd src && go mod download && cd ..
+      - run: cd src && go mod download
       - save_cache:
           key: go-module-cache-v1-{{ checksum "/workspace/src/go.sum" }}
           paths:
@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           key: workspace-v1-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - /workspace
+            - /workspace/src
 
   test:
     <<: *defaults
@@ -44,7 +44,7 @@ jobs:
             - go-build-cache-v1-{{ .Branch }}-{{ .Revision }}
             - go-build-cache-v1-{{ .Branch }}
             - go-build-cache-v1
-      - run: go test -v ./...
+      - run: cd src && go test -v ./...
       - save_cache:
           key: go-build-cache-v1-{{ .Branch }}-{{ .Revision }}
           paths:
