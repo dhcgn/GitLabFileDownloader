@@ -1,0 +1,6 @@
+github.com/denisbrodbeck/machineid v1.0.1 h1:geKr9qtkB876mXguW2X6TU4ZynleN6ezuMSRhl4D7AQ=
+github.com/denisbrodbeck/machineid v1.0.1/go.mod h1:dJUwb7PTidGDeYyUBmXZ2GphQBbjJCrnectwCyxcUSI=
+github.com/equinox-io/equinox v1.2.0 h1:bBS7Ou+Y7Jwgmy8TWSYxEh85WctuFn7FPlgbUzX4DBA=
+github.com/equinox-io/equinox v1.2.0/go.mod h1:6s3HJB0PYUNgs0mxmI8fHdfVl3TQ25ieA/PVfr+eyVo=
+golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 h1:JA8d3MPx/IToSyXZG/RhwYEtfrKO1Fxrqe8KrkiLXKM=
+golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
