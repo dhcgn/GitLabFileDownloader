@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,8 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/denisbrodbeck/machineid"
 )
 
 const (
@@ -28,7 +25,7 @@ const (
 	flagBranch        = "branch"
 	flagUrl           = "url"
 	flagProjectNumber = "projectNumber"
-	flagReproFilePath = "reproFilePath"
+	flagRepoFilePath  = "repoFilePath"
 	flagUpdate        = "update"
 )
 
@@ -41,7 +38,7 @@ var (
 
 	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "The Project ID from your project")
-	flagReproFilePathPtr = flag.String(flagReproFilePath, ``, "File path in repro, like src/main.go")
+	flagRepoFilePathPar  = flag.String(flagRepoFilePath, ``, "File path in repo, like src/main.go")
 
 	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 )
@@ -53,89 +50,95 @@ type GitLapFile struct {
 }
 
 type settings struct {
-	PrivateToken         string
-	OutFile              string
-	Branch               string
-	ApiUrl               string
-	ProjectNumber        string
-	ReproFilePathEscaped string
-	MachineId            string
+	PrivateToken        string
+	OutFile             string
+	Branch              string
+	ApiUrl              string
+	ProjectNumber       string
+	RepoFilePathEscaped string
 }
 
 func main() {
-	fmt.Println(AppName, "Version:", version)
-	fmt.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
+	log.Println(AppName, "Version:", version)
+	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
 	if len(os.Args) == 2 && os.Args[1] == "update" {
 		equinoxUpdate()
-		os.Exit(2)
+		exit(2)
 	}
 
 	flag.Parse()
 
 	if *flagUpdatePtr == true {
 		equinoxUpdate()
-		os.Exit(2)
+		exit(2)
 	}
 
 	settings := getSettings()
 	isValid, args := isSettingsValid(settings)
 	if !isValid {
-		fmt.Println("Arguments are missing:", args)
-		fmt.Println("Program will exit!")
-		os.Exit(-1)
+		log.Println("Arguments are missing:", args)
+		log.Println("Program will exit!")
+		exit(-1)
 	}
 
 	exists, dir := testTargetFolder(settings.OutFile)
 	if !exists {
-		fmt.Println("Folder", dir, "doesn't exists. Program will exit.")
-		os.Exit(-1)
+		log.Println("Folder", dir, "doesn't exists. Program will exit.")
+		exit(-1)
 	}
 
 	err, statusCode, status, bodyData := callApi(settings)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(-1)
+		log.Println("Error:", err)
+		exit(-1)
 	}
 
 	if statusCode != 200 {
-		fmt.Println("Error from API call:", statusCode, status)
-		os.Exit(-1)
+		log.Println("Error from API call:", statusCode, status)
+		exit(-1)
 	}
 
 	gitLapFile, err := createGitLapFile(err, bodyData)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(-1)
+		log.Println("Error:", err)
+		exit(-1)
 	}
 
 	fileData, err := base64.StdEncoding.DecodeString(gitLapFile.Content)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(-1)
+		log.Println("Error:", err)
+		exit(-1)
 	}
 
 	isEqual, err := isOldFileEqual(gitLapFile, settings)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(-1)
+		log.Println("Error:", err)
+		exit(-1)
 	}
 
 	if isEqual {
-		fmt.Println("No diff, nothing to do. Program will exit.")
-		os.Exit(1)
+		log.Println("No diff, nothing to do. Program will exit.")
+		exit(1)
 	} else {
-		fmt.Println("File from disk differs.")
+		log.Println("File from disk differs")
 	}
 
 	err = ioutil.WriteFile(*flagOutPathPtr, fileData, 0644)
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(-1)
+		log.Println("Error:", err)
+		exit(-1)
 	}
 
-	fmt.Println("New file was copied.")
-	os.Exit(0)
+	log.Println("New file was copied")
+	exit(0)
+
+}
+
+func exit(exitCode int) {
+	if version != "undef" {
+		os.Exit(exitCode)
+	}
 }
 
 func isSettingsValid(settings settings) (bool, []string) {
@@ -150,8 +153,8 @@ func isSettingsValid(settings settings) (bool, []string) {
 	if settings.Branch == "" {
 		missingArgs = append(missingArgs, flagBranch)
 	}
-	if settings.ReproFilePathEscaped == "" {
-		missingArgs = append(missingArgs, flagReproFilePath)
+	if settings.RepoFilePathEscaped == "" {
+		missingArgs = append(missingArgs, flagRepoFilePath)
 	}
 	if settings.ApiUrl == "" {
 		missingArgs = append(missingArgs, flagUrl)
@@ -188,14 +191,14 @@ func callApi(settings settings) (error, int, string, []byte) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	apiUrl := *flagUrlPtr + `projects/` + settings.ProjectNumber + `/repository/files/` + settings.ReproFilePathEscaped + `?ref=` + settings.Branch
+	apiUrl := *flagUrlPtr + `projects/` + settings.ProjectNumber + `/repository/files/` + settings.RepoFilePathEscaped + `?ref=` + settings.Branch
 
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
 		return err, 0, "", nil
 	}
 	req.Header.Add("Private-Token", settings.PrivateToken)
-	req.Header.Add("MachineId", settings.MachineId)
+	req.Header.Add("User-Agent", AppName+" "+version)
 
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(req)
@@ -224,17 +227,12 @@ func testTargetFolder(outFile string) (exists bool, dir string) {
 }
 
 func getSettings() settings {
-	id, err := machineid.ProtectedID(AppName)
-	if err != nil {
-		log.Fatal(err)
-	}
 	return settings{
-		PrivateToken:         *flagTokenPtr,
-		OutFile:              *flagOutPathPtr,
-		Branch:               *flagBranchPtr,
-		ApiUrl:               *flagUrlPtr,
-		ProjectNumber:        strconv.Itoa(*flagProjectNumberPtr),
-		ReproFilePathEscaped: url.PathEscape(*flagReproFilePathPtr),
-		MachineId:            id,
+		PrivateToken:        *flagTokenPtr,
+		OutFile:             *flagOutPathPtr,
+		Branch:              *flagBranchPtr,
+		ApiUrl:              *flagUrlPtr,
+		ProjectNumber:       strconv.Itoa(*flagProjectNumberPtr),
+		RepoFilePathEscaped: url.PathEscape(*flagRepoFilePathPar),
 	}
 }

@@ -5,7 +5,7 @@ function Get-ScriptDirectory {
 $equinox = (Resolve-Path (Join-Path (Get-ScriptDirectory) "build\tools\equinox.exe")).Path
 $key = (Resolve-Path (Join-Path (Get-ScriptDirectory) "build\secrets\equinox.key")).Path
 $token = Get-Content (Resolve-Path (Join-Path (Get-ScriptDirectory) "build\secrets\token.txt")).Path
-$version = "1.0.6"
+$version = "2.0.0"
 
 . $equinox release --version=$version `
     --platforms="windows_amd64 linux_amd64" `
