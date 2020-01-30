@@ -12,20 +12,22 @@ https://dl.equinox.io/dhcgn/gitlabfiledownloader/stable
 ## Using
 
 ```plain
-GitLabDownloader_windows_amd64.exe -h
-
-Version: 0.0.0
-Usage of GitLabDownloader_windows_amd64.exe:
+gitlabfiledownloader.exe -h
+2020/01/30 20:49:44 GitLab File Downloader Version: 2.0.0
+2020/01/30 20:49:44 Project: https://github.com/dhcgn/GitLabFileDownloader/
+Usage of gitlabfiledownloader.exe:
   -branch string
         Branch (default "master")
   -outPath string
         Path to write file to disk
   -projectNumber int
         The Project ID from your project
-  -reproFilePath string
-        File path in repro, like src/main.go
+  -repoFilePath string
+        File path in repo, like src/main.go
   -token string
-        Private-Token with access right for api and read_repository
+        Private-Token with access right for "api" and "read_repository"
+  -update
+        Update executable from equinox.io
   -url string
         Url to Api v4, like https://my-git-lab-server.local/api/v4/
 ```
