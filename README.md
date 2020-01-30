@@ -38,5 +38,5 @@ With this (windows and linux) tool you can now download theses config files from
 The file will be **only** replaced if the hash is different (from disk to git).
 
 ```bat
-gitlabfiledownloader.exe -reproFilePath myconfig.xml -outPath c:\App\myconfig.xml -projectNumber 547 -url https://gitlab.com/api/v4/ -token jd32dwEH2FS42342Sdf32
+gitlabfiledownloader.exe -outPath settings.json -projectNumber 16447351 -repoFilePath settings.json -token 5BUJpxdVx9fyq5KrXJx6 -url https://gitlab.com/api/v4/
 ```
