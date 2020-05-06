@@ -31,16 +31,17 @@ func Test_main_update(t *testing.T) {
 		prepare func()
 	}{
 		{
-			name: "",
+			name: "Use Flag",
 			prepare: func() {
 				updateflag := true
 				flagUpdatePtr = &updateflag
 			},
 		},
 		{
-			name: "",
+			name: "Use Args",
 			prepare: func() {
-				flagUpdatePtr = nil
+				updateflag := false
+				flagUpdatePtr = &updateflag
 				Args = []string{"", "update"}
 			},
 		},
