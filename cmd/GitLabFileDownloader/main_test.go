@@ -159,6 +159,10 @@ func getTempFilePath() (error, string) {
 }
 
 func setFlags(path string) {
+	Args = []string{""}
+	update := false
+	flagUpdatePtr = &update
+
 	filePath := "settings.json"
 	flagRepoFilePathPar = &filePath
 
