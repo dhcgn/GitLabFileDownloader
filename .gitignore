@@ -16,3 +16,4 @@ debug
 publish
 out
 secrets
+*.key
