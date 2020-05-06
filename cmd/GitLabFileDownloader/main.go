@@ -45,7 +45,6 @@ var (
 	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 
 	exitCode int
-	Args     = os.Args
 )
 
 type GitLapFile struct {
@@ -64,10 +63,14 @@ type settings struct {
 }
 
 func main() {
+	mainSub(os.Args)
+}
+
+func mainSub(args []string) {
 	log.Println(AppName, "Version:", version)
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
-	if len(Args) == 2 && Args[1] == "update" {
+	if len(args) == 2 && args[1] == "update" {
 		updater.EquinoxUpdate()
 		Exit(2)
 		return

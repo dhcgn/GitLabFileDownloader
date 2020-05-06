@@ -29,10 +29,12 @@ func Test_main_no_arguments(t *testing.T) {
 func Test_main_update(t *testing.T) {
 	tests := []struct {
 		name    string
+		args []string
 		prepare func()
 	}{
 		{
 			name: "Use Flag",
+			args:[]string{""},
 			prepare: func() {
 				updateflag := true
 				flagUpdatePtr = &updateflag
@@ -40,10 +42,10 @@ func Test_main_update(t *testing.T) {
 		},
 		{
 			name: "Use Args",
+			args:[]string{"", "update"},
 			prepare: func() {
 				updateflag := false
 				flagUpdatePtr = &updateflag
-				Args = []string{"", "update"}
 			},
 		},
 	}
@@ -53,7 +55,7 @@ func Test_main_update(t *testing.T) {
 			tt.prepare()
 
 			output := captureOutput(func() {
-				main()
+				mainSub(tt.args)
 				time.Sleep(time.Millisecond*100)
 			})
 
@@ -163,7 +165,6 @@ func getTempFilePath() (error, string) {
 }
 
 func setFlags(path string) {
-	Args = []string{""}
 	update := false
 	flagUpdatePtr = &update
 
