@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -9,76 +11,105 @@ import (
 	"testing"
 )
 
-func Test_main(t *testing.T) {
-	tmpfileTarget, _ := ioutil.TempFile("", "golang-test.*")
+func Test_main_use_cases(t *testing.T) {
+	err, filePath := getTempFilePath()
+	if err != nil {
+		t.Error(err)
+	}
 
-	setFlags(tmpfileTarget)
+	setFlags(filePath)
 
-	_ = captureOutput(func() {
-		main()
-	})
-
-	outputGitLab, _ := ioutil.ReadFile(tmpfileTarget.Name())
-	actualoutputGitLab := string(outputGitLab)
+	var output string
 
 	tests := []struct {
-		name        string
-		wantContent string
+		name         string
+		prepare      func()
+		wantContent  []string
+		wantExitCode int
 	}{
 		{
-			name: "Integration Test",
-			wantContent: `{
-    "fruit": "Apple",
-    "size": "Large",
-    "color": "Red"
-}
-`,
+			name: "New File",
+			prepare: func() {
+
+			},
+			wantContent:  []string{"File from disk differs", "New file was copied"},
+			wantExitCode: 0,
+		},
+		{
+			name: "Diff File",
+			prepare: func() {
+				f, err := os.Create(filePath)
+				if err != nil {
+					t.Error(err)
+				}
+				f.Write(getContent())
+				f.Write([]byte("Add some content to file to create a different hash"))
+				f.Close()
+			},
+			wantContent:  []string{"File from disk differs", "New file was copied"},
+			wantExitCode: 0,
+		},
+		{
+			name: "No Diff File",
+			prepare: func() {
+				f, err := os.Create(filePath)
+				if err != nil {
+					t.Error(err)
+				}
+				f.Write(getContent())
+				f.Close()
+			},
+			wantContent:  []string{"No diff, nothing to do."},
+			wantExitCode: 1,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if actualoutputGitLab != tt.wantContent {
-				t.Errorf("main() gotExists = %v, want %v", actualoutputGitLab, tt.wantContent)
+			tt.prepare()
+
+			output = captureOutput(func() {
+				main()
+			})
+
+			fmt.Println(output)
+
+			if exitCode != tt.wantExitCode {
+				t.Errorf("main() got exitCode = \"%v\", want \"%v\"", exitCode, tt.wantExitCode)
 			}
-		})
-	}
-}
 
-func Test_main_console_output(t *testing.T) {
-	tmpfileTarget, _ := ioutil.TempFile("", "golang-test.*")
-	setFlags(tmpfileTarget)
-
-	output := captureOutput(func() {
-		main()
-	})
-
-	tests := []struct {
-		name        string
-		wantContent []string
-	}{
-		{
-			name:        "Integration Test",
-			wantContent: []string{"File from disk differs", "New file was copied"},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
 			for _, line := range tt.wantContent {
 				if !strings.Contains(output, line) {
-					t.Errorf("main() gotExists = \"%v\", want \"%v\"", output, line)
+					t.Errorf("main() got console output = \"%v\", want \"%v\"", output, line)
 				}
 			}
+
+			log.SetOutput(nil)
+
 		})
 	}
 }
 
-func setFlags(tmpfileTarget *os.File) {
+func getTempFilePath() (error, string) {
+	tmpfileTarget, _ := ioutil.TempFile("", "golang-test.*")
+	filePath := tmpfileTarget.Name()
+
+	if err := tmpfileTarget.Close(); err != nil {
+		return err, ""
+	}
+
+	if err := os.Remove(filePath); err != nil {
+		return err, ""
+	}
+
+	return nil, filePath
+}
+
+func setFlags(path string) {
 	filePath := "settings.json"
 	flagRepoFilePathPar = &filePath
 
-	outPath := tmpfileTarget.Name()
+	outPath := path
 	flagOutPathPtr = &outPath
 
 	projectNumber := 16447351
@@ -101,4 +132,15 @@ func captureOutput(f func()) string {
 	f()
 	log.SetOutput(os.Stderr)
 	return buf.String()
+}
+
+func getContent() []byte {
+	// file: https://gitlab.com/gitLabFileDownloader/test-project/blob/master/settings.json
+	const contentBase64 = "ewogICAgImZydWl0IjogIkFwcGxlIiwKICAgICJzaXplIjogIkxhcmdlIiwKICAgICJjb2xvciI6ICJSZWQiCn0K"
+	data, err := base64.StdEncoding.DecodeString(contentBase64)
+	if err != nil {
+		panic(err)
+	}
+
+	return data
 }

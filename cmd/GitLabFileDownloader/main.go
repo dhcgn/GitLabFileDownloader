@@ -43,6 +43,8 @@ var (
 	flagRepoFilePathPar  = flag.String(flagRepoFilePath, ``, "File path in repo, like src/main.go")
 
 	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
+
+	exitCode int
 )
 
 type GitLapFile struct {
@@ -66,14 +68,16 @@ func main() {
 
 	if len(os.Args) == 2 && os.Args[1] == "update" {
 		updater.EquinoxUpdate()
-		exit(2)
+		Exit(2)
+		return
 	}
 
 	flag.Parse()
 
 	if *flagUpdatePtr == true {
 		updater.EquinoxUpdate()
-		exit(2)
+		Exit(2)
+		return
 	}
 
 	settings := getSettings()
@@ -81,47 +85,55 @@ func main() {
 	if !isValid {
 		log.Println("Arguments are missing:", args)
 		log.Println("Program will exit!")
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	exists, dir := testTargetFolder(settings.OutFile)
 	if !exists {
 		log.Println("Folder", dir, "doesn't exists. Program will exit.")
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	err, statusCode, status, bodyData := callApi(settings)
 	if err != nil {
 		log.Println("Error:", err)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	if statusCode != 200 {
 		log.Println("Error from API call:", statusCode, status)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	gitLapFile, err := createGitLapFile(err, bodyData)
 	if err != nil {
 		log.Println("Error:", err)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	fileData, err := base64.StdEncoding.DecodeString(gitLapFile.Content)
 	if err != nil {
 		log.Println("Error:", err)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	isEqual, err := isOldFileEqual(gitLapFile, settings)
 	if err != nil {
 		log.Println("Error:", err)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	if isEqual {
 		log.Println("No diff, nothing to do. Program will exit.")
-		exit(1)
+		Exit(1)
+		return
 	} else {
 		log.Println("File from disk differs")
 	}
@@ -129,17 +141,19 @@ func main() {
 	err = ioutil.WriteFile(*flagOutPathPtr, fileData, 0644)
 	if err != nil {
 		log.Println("Error:", err)
-		exit(-1)
+		Exit(-1)
+		return
 	}
 
 	log.Println("New file was copied")
-	exit(0)
-
+	Exit(0)
 }
 
-func exit(exitCode int) {
+func Exit(code int) {
+	exitCode = code
+	// only deployed version should terminate here
 	if version != "undef" {
-		os.Exit(exitCode)
+		os.Exit(code)
 	}
 }
 
