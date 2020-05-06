@@ -1,0 +1,8 @@
+# github.com/equinox-io/equinox v1.2.0
+## explicit
+github.com/equinox-io/equinox
+github.com/equinox-io/equinox/internal/go-update
+github.com/equinox-io/equinox/internal/go-update/internal/binarydist
+github.com/equinox-io/equinox/internal/go-update/internal/osext
+github.com/equinox-io/equinox/internal/osext
+github.com/equinox-io/equinox/proto
