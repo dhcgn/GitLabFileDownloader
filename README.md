@@ -1,6 +1,7 @@
 # GitLabFileDownloader
 
 ![Go](https://github.com/dhcgn/GitLabFileDownloader/workflows/Go/badge.svg)
+[![codecov](https://codecov.io/gh/dhcgn/GitLabFileDownloader/branch/master/graph/badge.svg)](https://codecov.io/gh/dhcgn/GitLabFileDownloader)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dhcgn/GitLabFileDownloader)](https://goreportcard.com/report/github.com/dhcgn/GitLabFileDownloader)
 
 Download a file from a GitLab server and save it to disk if file is different.
