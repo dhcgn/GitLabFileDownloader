@@ -45,6 +45,7 @@ var (
 	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 
 	exitCode int
+	Args     = os.Args
 )
 
 type GitLapFile struct {
@@ -66,7 +67,7 @@ func main() {
 	log.Println(AppName, "Version:", version)
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
-	if len(os.Args) == 2 && os.Args[1] == "update" {
+	if len(Args) == 2 && Args[1] == "update" {
 		updater.EquinoxUpdate()
 		Exit(2)
 		return
@@ -84,14 +85,13 @@ func main() {
 	isValid, args := isSettingsValid(settings)
 	if !isValid {
 		log.Println("Arguments are missing:", args)
-		log.Println("Program will exit!")
 		Exit(-1)
 		return
 	}
 
 	exists, dir := testTargetFolder(settings.OutFile)
 	if !exists {
-		log.Println("Folder", dir, "doesn't exists. Program will exit.")
+		log.Println("Folder", dir, "doesn't exists.")
 		Exit(-1)
 		return
 	}
@@ -131,7 +131,7 @@ func main() {
 	}
 
 	if isEqual {
-		log.Println("No diff, nothing to do. Program will exit.")
+		log.Println("No diff, nothing to do.")
 		Exit(1)
 		return
 	} else {
@@ -150,6 +150,7 @@ func main() {
 }
 
 func Exit(code int) {
+	log.Println("Program will exit!")
 	exitCode = code
 	// only deployed version should terminate here
 	if version != "undef" {

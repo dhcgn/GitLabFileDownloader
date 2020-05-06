@@ -11,6 +11,59 @@ import (
 	"testing"
 )
 
+func Test_main_no_arguments(t *testing.T) {
+
+	output := captureOutput(func() {
+		main()
+	})
+
+	fmt.Println(output)
+
+	expected := "Arguments are missing"
+	if !strings.Contains(output, expected) {
+		t.Errorf("main() got console output = \"%v\", want \"%v\"", output, expected)
+	}
+}
+
+func Test_main_update(t *testing.T) {
+	tests := []struct {
+		name    string
+		prepare func()
+	}{
+		{
+			name: "",
+			prepare: func() {
+				updateflag := true
+				flagUpdatePtr = &updateflag
+			},
+		},
+		{
+			name: "",
+			prepare: func() {
+				flagUpdatePtr = nil
+				Args = []string{"", "update"}
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.prepare()
+
+		output := captureOutput(func() {
+			main()
+		})
+
+		// fmt.Println(output)
+
+		expectedString := []string{"Updated to new version", "No update available"}
+
+		if !strings.Contains(output, expectedString[0]) && !strings.Contains(output, expectedString[1]) {
+			t.Errorf("main() got console output = \"%v\", want one of these \"%v\"", output, expectedString)
+		}
+
+	}
+}
+
 func Test_main_use_cases(t *testing.T) {
 	err, filePath := getTempFilePath()
 	if err != nil {
@@ -72,7 +125,7 @@ func Test_main_use_cases(t *testing.T) {
 				main()
 			})
 
-			fmt.Println(output)
+			// fmt.Println(output)
 
 			if exitCode != tt.wantExitCode {
 				t.Errorf("main() got exitCode = \"%v\", want \"%v\"", exitCode, tt.wantExitCode)

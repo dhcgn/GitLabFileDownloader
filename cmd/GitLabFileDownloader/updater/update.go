@@ -1,7 +1,7 @@
 package updater
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/equinox-io/equinox"
 )
@@ -28,10 +28,10 @@ func EquinoxUpdate() error {
 	resp, err := equinox.Check(appID, opts)
 	switch {
 	case err == equinox.NotAvailableErr:
-		fmt.Println("No update available, already at the latest version!")
+		log.Println("No update available, already at the latest version!")
 		return nil
 	case err != nil:
-		fmt.Println("Update failed:", err)
+		log.Println("Update failed:", err)
 		return err
 	}
 
@@ -41,6 +41,6 @@ func EquinoxUpdate() error {
 		return err
 	}
 
-	fmt.Printf("Updated to new version: %s!\n", resp.ReleaseVersion)
+	log.Printf("Updated to new version: %s!\n", resp.ReleaseVersion)
 	return nil
 }
