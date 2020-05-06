@@ -1,6 +1,6 @@
 # GitLabFileDownloader
 
-[![CircleCI](https://circleci.com/gh/dhcgn/GitLabFileDownloader.svg?style=svg)](https://circleci.com/gh/dhcgn/GitLabFileDownloader)
+![Go](https://github.com/dhcgn/GitLabFileDownloader/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dhcgn/GitLabFileDownloader)](https://goreportcard.com/report/github.com/dhcgn/GitLabFileDownloader)
 
 Download a file from a GitLab server and save it to disk if file is different.
