@@ -19,6 +19,7 @@ gkLzMYCOBaVtEukjyxZCUutxwwf/8XfW
 `)
 
 func EquinoxUpdate() error {
+	log.Println("Starting update")
 	var opts equinox.Options
 	if err := opts.SetPublicKeyPEM(publicKey); err != nil {
 		return err

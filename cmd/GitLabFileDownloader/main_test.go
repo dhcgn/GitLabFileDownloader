@@ -61,10 +61,9 @@ func Test_main_update(t *testing.T) {
 
 			// fmt.Println(output)
 
-			expectedString := []string{"Updated to new version", "No update available"}
-
-			if !strings.Contains(output, expectedString[0]) && !strings.Contains(output, expectedString[1]) {
-				t.Errorf("main() got console output = \"%v\", want one of these \"%v\"", output, expectedString)
+			expectedString := "Starting update"
+			if !strings.Contains(output, expectedString) {
+				t.Errorf("main() got console output = \"%v\", want \"%v\"", output, expectedString)
 			}
 		})
 	}
