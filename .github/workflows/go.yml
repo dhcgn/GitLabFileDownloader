@@ -36,4 +36,11 @@ jobs:
 
     - name: Test
       working-directory: cmd/GitLabFileDownloader
-      run: go test -v .
+      run: go test -v -coverprofile=coverage.txt -covermode=atomic .
+
+      steps:
+        - uses: actions/checkout@master
+        - uses: codecov/codecov-action@v1
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+           
