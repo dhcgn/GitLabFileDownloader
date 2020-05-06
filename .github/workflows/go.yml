@@ -36,7 +36,7 @@ jobs:
 
     - name: Test
       working-directory: cmd/GitLabFileDownloader
-      run: go test -v -coverprofile=coverage.txt -covermode=atomic .
+      run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic .
 
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1
