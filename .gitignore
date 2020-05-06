@@ -15,5 +15,4 @@
 debug
 publish
 out
-build/tools/equinox.key
-build/tools/equinox.pub
+secrets

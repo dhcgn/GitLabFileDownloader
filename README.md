@@ -1,24 +1,35 @@
 # GitLabFileDownloader
 
+[![CircleCI](https://circleci.com/gh/dhcgn/GitLabFileDownloader.svg?style=svg)](https://circleci.com/gh/dhcgn/GitLabFileDownloader)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dhcgn/GitLabFileDownloader)](https://goreportcard.com/report/github.com/dhcgn/GitLabFileDownloader)
+
 Download a file from a GitLab server and save it to disk if file is different.
 
-```
-GitLabDownloader_windows_amd64.exe -h
+## Latest
 
-Version: 0.0.0
-Usage of GitLabDownloader_windows_amd64.exe:
+https://dl.equinox.io/dhcgn/gitlabfiledownloader/stable
+
+## Using
+
+```plain
+gitlabfiledownloader.exe -h
+2020/01/30 20:49:44 GitLab File Downloader Version: 2.0.0
+2020/01/30 20:49:44 Project: https://github.com/dhcgn/GitLabFileDownloader/
+Usage of gitlabfiledownloader.exe:
   -branch string
         Branch (default "master")
   -outPath string
-        Path to write the file (default "my_file.json")
+        Path to write file to disk
   -projectNumber int
-        Url to Api v4
-  -reproFilePath string
-        gitLabFilePathInReproPtr (default "my_config.json")
+        The Project ID from your project
+  -repoFilePath string
+        File path in repo, like src/main.go
   -token string
-        Private-Token (default "xxxxxxxxxxxxxxxxxxxx")
+        Private-Token with access right for "api" and "read_repository"
+  -update
+        Update executable from equinox.io
   -url string
-        Url to Api v4 (default "https://my-git-lap-server.local/api/v4/")
+        Url to Api v4, like https://my-git-lab-server.local/api/v4/
 ```
 
 ## Use Case
@@ -29,5 +40,5 @@ With this (windows and linux) tool you can now download theses config files from
 The file will be **only** replaced if the hash is different (from disk to git).
 
 ```bat
-GitLabDownloader_windows_amd64_1.0.0.exe -reproFilePath myconfig.xml -outPath c:\App\myconfig.xml -projectNumber 547 -url https://my-git-server.com/api/v4/ -token jd32dwEH2FS42342Sdf32
+gitlabfiledownloader.exe -outPath settings.json -projectNumber 16447351 -repoFilePath settings.json -token 5BUJpxdVx9fyq5KrXJx6 -url https://gitlab.com/api/v4/
 ```
