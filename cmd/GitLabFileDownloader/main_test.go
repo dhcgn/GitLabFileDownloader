@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func Test_main_no_arguments(t *testing.T) {
@@ -47,21 +48,23 @@ func Test_main_update(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		test.prepare()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare()
 
-		output := captureOutput(func() {
-			main()
+			output := captureOutput(func() {
+				main()
+				time.Sleep(time.Millisecond*100)
+			})
+
+			// fmt.Println(output)
+
+			expectedString := []string{"Updated to new version", "No update available"}
+
+			if !strings.Contains(output, expectedString[0]) && !strings.Contains(output, expectedString[1]) {
+				t.Errorf("main() got console output = \"%v\", want one of these \"%v\"", output, expectedString)
+			}
 		})
-
-		// fmt.Println(output)
-
-		expectedString := []string{"Updated to new version", "No update available"}
-
-		if !strings.Contains(output, expectedString[0]) && !strings.Contains(output, expectedString[1]) {
-			t.Errorf("main() got console output = \"%v\", want one of these \"%v\"", output, expectedString)
-		}
-
 	}
 }
 
