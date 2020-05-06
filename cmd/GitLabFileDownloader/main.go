@@ -15,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/dhcgn/GitLabFileDownloader/cmd/GitLabFileDownloader/updater"
 )
 
 const (
@@ -63,14 +65,14 @@ func main() {
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
 	if len(os.Args) == 2 && os.Args[1] == "update" {
-		equinoxUpdate()
+		updater.EquinoxUpdate()
 		exit(2)
 	}
 
 	flag.Parse()
 
 	if *flagUpdatePtr == true {
-		equinoxUpdate()
+		updater.EquinoxUpdate()
 		exit(2)
 	}
 

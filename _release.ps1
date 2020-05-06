@@ -14,4 +14,4 @@ $version = "2.0.0"
     --app="app_dTSgRj85fgP" `
     --token=$token `
     -- -ldflags ("-s -w -X main.version={0}" -f $version) -trimpath `
-    github.com/GitLabFileDownloader/src
+    github.com/GitLabFileDownloader

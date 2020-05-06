@@ -1,4 +1,4 @@
-package main
+package updater
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ gkLzMYCOBaVtEukjyxZCUutxwwf/8XfW
 -----END ECDSA PUBLIC KEY-----
 `)
 
-func equinoxUpdate() error {
+func EquinoxUpdate() error {
 	var opts equinox.Options
 	if err := opts.SetPublicKeyPEM(publicKey); err != nil {
 		return err

@@ -23,10 +23,10 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
 }
 
 $appName = "GitLabDownloader"
-$version = "1.0.0"
+$version = "1.0.1"
 $publishFolder = "publish"
 $debugFolder = "debug"
-$compressPublish = $true
+$compressPublish = $false
 
 $rootFolder = Split-Path -parent $PSCommandPath
 $upx = [System.IO.Path]::Combine($rootFolder, "build", "tools", "upx.exe" )
@@ -69,7 +69,7 @@ foreach ($item in $platforms ) {
         $extension = ".bin"
     }
         
-    $buildCode = (Join-Path -Path $rootFolder "src")
+    $buildCode = (Join-Path -Path $rootFolder "cmd\GitLabFileDownloader")
    
     $count += 1
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build publish" -PercentComplete ([Double]$count / $maxCount * 100)

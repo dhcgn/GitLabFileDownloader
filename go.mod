@@ -1,4 +1,4 @@
-module github.com/dhcgn/GitLabFileDownloader/src
+module github.com/dhcgn/GitLabFileDownloader
 
 go 1.13
 
