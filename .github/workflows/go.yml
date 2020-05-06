@@ -31,7 +31,9 @@ jobs:
         fi
 
     - name: Build
+      working-directory: cmd/GitLabFileDownloader
       run: go build -v .
 
     - name: Test
+      working-directory: cmd/GitLabFileDownloader
       run: go test -v .
