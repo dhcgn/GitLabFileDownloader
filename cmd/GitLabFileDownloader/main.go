@@ -29,7 +29,8 @@ const (
 )
 
 var (
-	version = "undef"
+	version  = "undef"
+	commitID = "undef"
 
 	flagTokenPtr   = flag.String(flagToken, ``, `Private-Token with access right for "api" and "read_repository"`)
 	flagOutPathPtr = flag.String(flagOutPath, ``, "Path to write file to disk")
@@ -62,7 +63,7 @@ func main() {
 }
 
 func mainSub(args []string) {
-	log.Println(AppName, "Version:", version)
+	log.Println(AppName, "Version:", version, "Commit:", commitID)
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
 	flag.Parse()
@@ -71,6 +72,7 @@ func mainSub(args []string) {
 	isValid, args := isSettingsValid(settings)
 	if !isValid {
 		log.Println("Arguments are missing:", args)
+		flag.PrintDefaults()
 		Exit(-1)
 		return
 	}
