@@ -38,8 +38,6 @@ var (
 
 	flagUrlPtr           = flag.String(internal.FlagNameUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(internal.FlagNameProjectNumber, 0, "The Project ID from your project")
-
-	exitCode int
 )
 
 func main() {
@@ -58,7 +56,6 @@ func mainSub(args []string) {
 		log.Println("Arguments are missing:", args)
 		log.Println("Messages:", msgs)
 		flag.PrintDefaults()
-		Exit(-1)
 		return
 	}
 
@@ -90,7 +87,6 @@ func folderModeHandling(settings internal.Settings) {
 		err := os.Mkdir(settings.OutFolder, 0755)
 		if err != nil {
 			log.Println("Error:", err)
-			Exit(-1)
 			return
 		}
 	}
@@ -98,7 +94,6 @@ func folderModeHandling(settings internal.Settings) {
 	files, err := api.GetFilesFromFolder(settings)
 	if err != nil {
 		log.Println("Error:", err)
-		Exit(-1)
 		return
 	}
 
@@ -134,13 +129,9 @@ func fileModeHandlingInternal(settings internal.Settings) (bool, error) {
 		return false, fmt.Errorf("Target folder %v doesn't exists", dir)
 	}
 
-	err, statusCode, status, gitLapFile := api.GetFile(settings)
+	gitLapFile, err := api.GetFile(settings)
 	if err != nil {
 		return false, fmt.Errorf("API Call error: %v", err)
-	}
-
-	if statusCode != 200 {
-		return false, fmt.Errorf("API Call status code: %v %v", statusCode, status)
 	}
 
 	fileData, err := base64.StdEncoding.DecodeString(gitLapFile.Content)
@@ -162,15 +153,6 @@ func fileModeHandlingInternal(settings internal.Settings) (bool, error) {
 		return false, fmt.Errorf("WriteFile: %v", err)
 	}
 	return true, nil
-}
-
-func Exit(code int) {
-	log.Println("Program will exit!")
-	exitCode = code
-	// only deployed version should terminate here
-	if version != "undef" {
-		os.Exit(code)
-	}
 }
 
 func isOldFileEqual(gitLapFile api.GitLapFile, settings internal.Settings) (bool, error) {

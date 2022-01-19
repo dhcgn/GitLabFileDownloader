@@ -9,6 +9,9 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/dhcgn/GitLabFileDownloader/internal"
+	"github.com/dhcgn/GitLabFileDownloader/internal/api"
 )
 
 func Test_main_no_arguments(t *testing.T) {
@@ -25,13 +28,28 @@ func Test_main_no_arguments(t *testing.T) {
 	}
 }
 
-func Test_main_integration(t *testing.T) {
+func Test_main_mode_file(t *testing.T) {
 	err, filePath := getTempFilePath()
 	if err != nil {
 		t.Error(err)
 	}
 
 	setFlags(filePath)
+
+	api.HttpGetFunc = func(url string, s internal.Settings) ([]byte, error) {
+		return []byte(`{
+			"file_name": "settings.json",
+			"file_path": "settings.json",
+			"size": 66,
+			"encoding": "base64",
+			"content_sha256": "3de0a34a2cd8d60061f9ac2feda73053b0b8de80995d3fd167c2c225f73817a4",
+			"ref": "master",
+			"blob_id": "3bb802a168cc02233c337503990b8d906619583b",
+			"commit_id": "726a84679597812d8085085f742fb5ddba8a0299",
+			"last_commit_id": "4005048b4c3d556ebcdb40bd7dc471fd2216d635",
+			"content": "ewogICAgImZydWl0IjogIkFwcGxlIiwKICAgICJzaXplIjogIkxhcmdlIiwKICAgICJjb2xvciI6ICJSZWQiCn0K"
+		}`), nil
+	}
 
 	var output string
 
