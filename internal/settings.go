@@ -11,6 +11,8 @@ const (
 	FlagNameProjectNumber         = "projectNumber"
 	FlagNameRepoFilePath          = "repoFilePath"
 	FlagNameRepoFolderPathEscaped = "repoFolder"
+	IncludeOnly                   = "includeonly"
+	Exclude                       = "exclude"
 )
 
 type Settings struct {
@@ -23,6 +25,8 @@ type Settings struct {
 	RepoFilePath   string
 	RepoFolderPath string
 	UserAgent      string
+	IncludeOnly    string
+	Exclude        string
 }
 
 type Mode int

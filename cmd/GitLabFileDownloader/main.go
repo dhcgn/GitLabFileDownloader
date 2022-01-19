@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 
 	"github.com/dhcgn/GitLabFileDownloader/internal"
@@ -38,6 +39,9 @@ var (
 
 	flagUrlPtr           = flag.String(internal.FlagNameUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(internal.FlagNameProjectNumber, 0, "The Project ID from your project")
+
+	flagIncludeOnlyPtr = flag.String(internal.IncludeOnly, ``, "Include only these regex pattern")
+	flagExcludePtr     = flag.String(internal.Exclude, ``, "Exclude these regex pattern")
 )
 
 func main() {
@@ -97,9 +101,29 @@ func folderModeHandling(settings internal.Settings) {
 		return
 	}
 
-	log.Println("Sync", len(files), "files")
+	log.Println("Sync", len(files), "files, from remote folder", settings.RepoFolderPath)
 
 	for _, file := range files {
+
+		if settings.IncludeOnly != "" {
+			m, err := regexp.MatchString(settings.IncludeOnly, file.Name)
+			if err == nil {
+				if !m {
+					log.Println("Skip:", file.Name, "because include only rule:", settings.IncludeOnly)
+					continue
+				}
+			}
+		}
+		if settings.Exclude != "" {
+			m, err := regexp.MatchString(settings.Exclude, file.Name)
+			if err == nil {
+				if m {
+					log.Println("Skip:", file.Name, "because exclude rule:", settings.Exclude)
+					continue
+				}
+			}
+		}
+
 		if file.Type == "tree" {
 			folderSettings := settings
 			outFolder := path.Join(folderSettings.OutFolder, file.Name)
@@ -203,5 +227,7 @@ func getSettingsFromFlags() internal.Settings {
 		RepoFilePath:   *flagRepoFilePathPar,
 		RepoFolderPath: *flagRepoFolderPathPtr,
 		UserAgent:      AppName + " " + version,
+		IncludeOnly:    *flagIncludeOnlyPtr,
+		Exclude:        *flagExcludePtr,
 	}
 }
