@@ -87,6 +87,8 @@ foreach ($item in $platforms ) {
     $executeExpression = "go build -ldflags ""-s -w -X main.version={0} -X main.commitID={1}"" -trimpath -o {2} {3}" -f $version, $commitID, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
+    
+    Compress-Archive -Path $buildOutput -DestinationPath ($buildOutput+".zip")
 
     if (-not (Test-Path $buildOutput)) {
         Write-Host "ERROR - Build result is missing!" -ForegroundColor Red
@@ -102,6 +104,8 @@ foreach ($item in $platforms ) {
     $executeExpression = "go build -ldflags ""-X main.version={0}"" -o {1} {2}" -f $version, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
+
+    Compress-Archive -Path $buildOutput -DestinationPath ($buildOutput+".zip")
 }
 
 # Restore GO envs
