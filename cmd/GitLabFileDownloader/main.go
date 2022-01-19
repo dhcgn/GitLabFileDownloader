@@ -100,11 +100,20 @@ func folderModeHandling(settings internal.Settings) {
 	log.Println("Sync", len(files), "files")
 
 	for _, file := range files {
-		fileSettings := settings
+		if file.Type == "tree" {
+			folderSettings := settings
+			outFolder := path.Join(folderSettings.OutFolder, file.Name)
+			folderSettings.OutFolder = outFolder
+			folderSettings.RepoFolderPath = file.Path
+			folderModeHandling(folderSettings)
 
-		outFile := path.Join(fileSettings.OutFolder, path.Base(file))
+			continue
+		}
+
+		fileSettings := settings
+		outFile := path.Join(fileSettings.OutFolder, path.Base(file.Path))
 		fileSettings.OutFile = outFile
-		fileSettings.RepoFilePath = file
+		fileSettings.RepoFilePath = file.Path
 
 		fileModeHandling(fileSettings)
 	}

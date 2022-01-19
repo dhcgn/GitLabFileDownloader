@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceRoot}/cmd/GitLabFileDownloader/",
-            "args": ["-outFolder","test_dir","-projectNumber","16447351","-repoFolder","test_dir","-token","5BUJpxdVx9fyq5KrXJx6","-url","https://gitlab.com/api/v4/"]
+            "args": ["-outFolder","test_local_dir","-projectNumber","16447351","-repoFolder","test_dir","-token","5BUJpxdVx9fyq5KrXJx6","-url","https://gitlab.com/api/v4/"]
         },
         {
             "name": "File Mode",
@@ -18,7 +18,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceRoot}/cmd/GitLabFileDownloader/",
-            "args": ["-outPath","test_dir/settings.json","-projectNumber","16447351","-repoFilePath","settings.json","-token","5BUJpxdVx9fyq5KrXJx6","-url","https://gitlab.com/api/v4/"]
+            "args": ["-outPath","test_local_dir/settings.json","-projectNumber","16447351","-repoFilePath","settings.json","-token","5BUJpxdVx9fyq5KrXJx6","-url","https://gitlab.com/api/v4/"]
         }
     ]
 }

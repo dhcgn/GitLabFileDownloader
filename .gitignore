@@ -17,4 +17,4 @@ publish
 out
 secrets
 *.key
-**/test_dir
+**/test_local_dir
