@@ -22,6 +22,7 @@ type Settings struct {
 	ProjectNumber  string
 	RepoFilePath   string
 	RepoFolderPath string
+	UserAgent      string
 }
 
 type Mode int

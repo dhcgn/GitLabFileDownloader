@@ -2,17 +2,13 @@ package main
 
 import (
 	"crypto/sha256"
-	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -45,12 +41,6 @@ var (
 
 	exitCode int
 )
-
-type GitLapFile struct {
-	FileName      string `json:"file_name"`
-	ContentSha256 string `json:"content_sha256"`
-	Content       string
-}
 
 func main() {
 	mainSub(os.Args)
@@ -144,18 +134,13 @@ func fileModeHandlingInternal(settings internal.Settings) (bool, error) {
 		return false, fmt.Errorf("Target folder %v doesn't exists", dir)
 	}
 
-	err, statusCode, status, bodyData := callApi(settings)
+	err, statusCode, status, gitLapFile := api.GetFile(settings)
 	if err != nil {
 		return false, fmt.Errorf("API Call error: %v", err)
 	}
 
 	if statusCode != 200 {
 		return false, fmt.Errorf("API Call status code: %v %v", statusCode, status)
-	}
-
-	gitLapFile, err := createGitLapFile(err, bodyData)
-	if err != nil {
-		return false, fmt.Errorf("createGitLapFile: %v", err)
 	}
 
 	fileData, err := base64.StdEncoding.DecodeString(gitLapFile.Content)
@@ -188,7 +173,7 @@ func Exit(code int) {
 	}
 }
 
-func isOldFileEqual(gitLapFile GitLapFile, settings internal.Settings) (bool, error) {
+func isOldFileEqual(gitLapFile api.GitLapFile, settings internal.Settings) (bool, error) {
 	if _, err := os.Stat(settings.OutFile); err == nil {
 		file, err := os.Open(settings.OutFile)
 		if err != nil {
@@ -204,42 +189,6 @@ func isOldFileEqual(gitLapFile GitLapFile, settings internal.Settings) (bool, er
 		return sha256Hex == gitLapFile.ContentSha256, nil
 	}
 	return false, nil
-}
-
-func createGitLapFile(err error, data []byte) (GitLapFile, error) {
-	var gitLapFile GitLapFile
-	err = json.Unmarshal(data, &gitLapFile)
-	return gitLapFile, err
-}
-
-func callApi(settings internal.Settings) (error, int, string, []byte) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	apiUrl := fmt.Sprintf("%vprojects/%v/repository/files/%v?ref=%v", *flagUrlPtr, settings.ProjectNumber, url.QueryEscape(settings.RepoFilePath), settings.Branch)
-
-	req, err := http.NewRequest("GET", apiUrl, nil)
-	if err != nil {
-		return err, 0, "", nil
-	}
-	req.Header.Add("Private-Token", settings.PrivateToken)
-	req.Header.Add("User-Agent", AppName+" "+version)
-
-	client := &http.Client{Transport: tr}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err, 0, "", nil
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err, 0, "", nil
-	}
-	err = resp.Body.Close()
-	if err != nil {
-		return err, 0, "", nil
-	}
-	return err, resp.StatusCode, resp.Status, body
 }
 
 func testTargetFolder(outFile string) (exists bool, dir string) {
@@ -262,5 +211,6 @@ func getSettingsFromFlags() internal.Settings {
 		ProjectNumber:  strconv.Itoa(*flagProjectNumberPtr),
 		RepoFilePath:   *flagRepoFilePathPar,
 		RepoFolderPath: *flagRepoFolderPathPtr,
+		UserAgent:      AppName + " " + version,
 	}
 }

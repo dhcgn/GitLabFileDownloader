@@ -36,18 +36,16 @@ func Test_main_integration(t *testing.T) {
 	var output string
 
 	tests := []struct {
-		name         string
-		prepare      func()
-		wantContent  []string
-		wantExitCode int
+		name        string
+		prepare     func()
+		wantContent []string
 	}{
 		{
 			name: "New File",
 			prepare: func() {
 
 			},
-			wantContent:  []string{"File from disk differs", "New file was copied"},
-			wantExitCode: 0,
+			wantContent: []string{"Wrote"},
 		},
 		{
 			name: "Diff File",
@@ -60,8 +58,7 @@ func Test_main_integration(t *testing.T) {
 				f.Write([]byte("Add some content to file to create a different hash"))
 				f.Close()
 			},
-			wantContent:  []string{"File from disk differs", "New file was copied"},
-			wantExitCode: 0,
+			wantContent: []string{"Wrote"},
 		},
 		{
 			name: "No Diff File",
@@ -73,8 +70,7 @@ func Test_main_integration(t *testing.T) {
 				f.Write(getContent())
 				f.Close()
 			},
-			wantContent:  []string{"No diff, nothing to do."},
-			wantExitCode: 1,
+			wantContent: []string{"Skip"},
 		},
 	}
 
@@ -85,12 +81,6 @@ func Test_main_integration(t *testing.T) {
 			output = captureOutput(func() {
 				main()
 			})
-
-			// fmt.Println(output)
-
-			if exitCode != tt.wantExitCode {
-				t.Errorf("main() got exitCode = \"%v\", want \"%v\"", exitCode, tt.wantExitCode)
-			}
 
 			for _, line := range tt.wantContent {
 				if !strings.Contains(output, line) {
