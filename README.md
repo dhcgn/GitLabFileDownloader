@@ -17,6 +17,8 @@ See Releases
 
 ## TLS Security
 
+**Will be a config switch, soon.**
+
 ```go
 tr := &http.Transport{
 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
