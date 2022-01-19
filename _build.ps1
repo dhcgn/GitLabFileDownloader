@@ -22,8 +22,8 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
     return
 }
 
-$appName = "GitLabDownloader"
-$version = "1.0.2"
+$appName = "gdown"
+$version = "1.1.0"
 $publishFolder = "publish"
 $debugFolder = "debug"
 
