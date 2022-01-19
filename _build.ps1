@@ -41,7 +41,7 @@ $platforms += @{GOOS = "windows"; GOARCH = "amd64"; }
 #$platforms += @{GOOS = "windows"; GOARCH = "386"; }
 $platforms += @{GOOS = "linux"; GOARCH = "amd64"; }
 #$platforms += @{GOOS = "linux"; GOARCH = "386"; }
-#$platforms += @{GOOS = "linux"; GOARCH = "arm"; }
+$platforms += @{GOOS = "linux"; GOARCH = "arm"; }
 $platforms += @{GOOS = "linux"; GOARCH = "arm64"; }
 $platforms += @{GOOS = "darwin"; GOARCH = "amd64"; }
 $platforms += @{GOOS = "darwin"; GOARCH = "arm64"; }
@@ -87,7 +87,7 @@ foreach ($item in $platforms ) {
     $executeExpression = "go build -ldflags ""-s -w -X main.version={0} -X main.commitID={1}"" -trimpath -o {2} {3}" -f $version, $commitID, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
-    
+
     Compress-Archive -Path $buildOutput -DestinationPath ($buildOutput+".zip")
 
     if (-not (Test-Path $buildOutput)) {
@@ -98,14 +98,29 @@ foreach ($item in $platforms ) {
     Start-Sleep -Seconds 1 # Because of stupid AV-Shit 
 
     $count += 1
-    Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build debug" -PercentComplete ([Double]$count / $maxCount * 100)
+    ## DEBUG Stuff
+    # Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build debug" -PercentComplete ([Double]$count / $maxCount * 100)
+    # 
+    # $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $debugFolder, ("{0}_{1}_{2}{3}" -f $appName, $item.GOOS, $item.GOARCH, $extension)))
+    # $executeExpression = "go build -ldflags ""-X main.version={0}"" -o {1} {2}" -f $version, $buildOutput, $buildCode 
+    # Write-Host "Execute", $executeExpression -ForegroundColor Green
+    # Invoke-Expression $executeExpression
+    # 
+    # Compress-Archive -Path $buildOutput -DestinationPath ($buildOutput+".zip")
+}
 
-    $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $debugFolder, ("{0}_{1}_{2}{3}" -f $appName, $item.GOOS, $item.GOARCH, $extension)))
-    $executeExpression = "go build -ldflags ""-X main.version={0}"" -o {1} {2}" -f $version, $buildOutput, $buildCode 
-    Write-Host "Execute", $executeExpression -ForegroundColor Green
-    Invoke-Expression $executeExpression
+$pubFolder = [System.IO.Path]::Combine( $rootFolder, "build", $publishFolder)
+$hashFile = [System.IO.Path]::Combine( $pubFolder, "hash.txt")
+gci $pubFolder -Filter *.zip | Get-FileHash | %{ $_ | Add-Member -NotePropertyName Name -NotePropertyValue (gci $_.Path).Name; $_ } | ft Name, Hash, Algorithm | Out-File $hashFile
+Get-Content $hashFile
 
-    Compress-Archive -Path $buildOutput -DestinationPath ($buildOutput+".zip")
+if ((Test-Path "~\.age\dhcgn-github.key") -and (Test-Path "C:\Local\Tools\minisign.exe"))
+{
+    Write-Host "Signing ..." -ForegroundColor Green 
+    $key = (gci "~\.age\dhcgn-github.key").FullName
+    gci $pubFolder -Recurse -Include *.zip, *.txt | %{""| C:\Local\Tools\minisign.exe -s $key -Sm $_.FullName -q}
+}else{
+    Write-Host "No key or minisign found, skipping signing" -ForegroundColor Yellow
 }
 
 # Restore GO envs
