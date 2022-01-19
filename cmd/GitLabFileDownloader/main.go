@@ -15,8 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/dhcgn/GitLabFileDownloader/cmd/GitLabFileDownloader/updater"
 )
 
 const (
@@ -28,11 +26,11 @@ const (
 	flagUrl           = "url"
 	flagProjectNumber = "projectNumber"
 	flagRepoFilePath  = "repoFilePath"
-	flagUpdate        = "update"
 )
 
 var (
-	version = "undef"
+	version  = "undef"
+	commitID = "undef"
 
 	flagTokenPtr   = flag.String(flagToken, ``, `Private-Token with access right for "api" and "read_repository"`)
 	flagOutPathPtr = flag.String(flagOutPath, ``, "Path to write file to disk")
@@ -41,8 +39,6 @@ var (
 	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "The Project ID from your project")
 	flagRepoFilePathPar  = flag.String(flagRepoFilePath, ``, "File path in repo, like src/main.go")
-
-	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 
 	exitCode int
 )
@@ -67,27 +63,16 @@ func main() {
 }
 
 func mainSub(args []string) {
-	log.Println(AppName, "Version:", version)
+	log.Println(AppName, "Version:", version, "Commit:", commitID)
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
-	if len(args) == 2 && args[1] == "update" {
-		updater.EquinoxUpdate()
-		Exit(2)
-		return
-	}
-
 	flag.Parse()
-
-	if *flagUpdatePtr == true {
-		updater.EquinoxUpdate()
-		Exit(2)
-		return
-	}
 
 	settings := getSettings()
 	isValid, args := isSettingsValid(settings)
 	if !isValid {
 		log.Println("Arguments are missing:", args)
+		flag.PrintDefaults()
 		Exit(-1)
 		return
 	}

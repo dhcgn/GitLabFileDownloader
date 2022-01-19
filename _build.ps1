@@ -23,13 +23,17 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
 }
 
 $appName = "GitLabDownloader"
-$version = "1.0.1"
+$version = "1.0.2"
 $publishFolder = "publish"
 $debugFolder = "debug"
-$compressPublish = $false
+
+$commitID = Invoke-Expression "git rev-list -1 HEAD"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Couldn't get commit ID"
+    EXIT
+}
 
 $rootFolder = Split-Path -parent $PSCommandPath
-$upx = [System.IO.Path]::Combine($rootFolder, "build", "tools", "upx.exe" )
 
 # Just uncomment the platfoms you don't need
 $platforms = @()
@@ -54,6 +58,10 @@ if($compressPublish)
     $maxCount += $platforms.Count
 }
 
+# Save GO envs for restore
+$savedGOOS = $env:GOOS
+$savedGOARCH = $env:GOARCH
+
 foreach ($item in $platforms ) {
     # Write-Host "Build" $item.GOOS $item.GOARCH  -ForegroundColor Green
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)")  -PercentComplete ([Double]$count / $maxCount * 100)
@@ -75,7 +83,7 @@ foreach ($item in $platforms ) {
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build publish" -PercentComplete ([Double]$count / $maxCount * 100)
 
     $buildOutput = ([System.IO.Path]::Combine( $rootFolder, "build", $publishFolder, ("{0}_{1}_{2}_{3}{4}" -f $appName, $item.GOOS, $item.GOARCH, $version, $extension)))
-    $executeExpression = "go build -ldflags ""-s -w -X main.version={0}"" -trimpath -o {1} {2}" -f $version, $buildOutput, $buildCode 
+    $executeExpression = "go build -ldflags ""-s -w -X main.version={0} -X main.commitID={1}"" -trimpath -o {2} {3}" -f $version, $commitID, $buildOutput, $buildCode 
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
 
@@ -86,15 +94,6 @@ foreach ($item in $platforms ) {
 
     Start-Sleep -Seconds 1 # Because of stupid AV-Shit 
 
-    if ($compressPublish) {
-        $count += 1
-        Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Compress publish" -PercentComplete ([Double]$count / $maxCount * 100)
-       
-        $executeExpression =  "$upx --lzma $buildOutput -q"
-        Write-Host "Execute", $executeExpression -ForegroundColor Green
-        Invoke-Expression -Command $executeExpression >> $null
-    }
-
     $count += 1
     Write-Progress -Activity ("Build $($item.GOOS) $($item.GOARCH)") -Status "Build debug" -PercentComplete ([Double]$count / $maxCount * 100)
 
@@ -103,5 +102,9 @@ foreach ($item in $platforms ) {
     Write-Host "Execute", $executeExpression -ForegroundColor Green
     Invoke-Expression $executeExpression
 }
+
+# Restore GO envs
+$env:GOOS = $savedGOOS
+$env:GOARCH = $savedGOARCH
 
 Write-Host "Done!" -ForegroundColor Green
