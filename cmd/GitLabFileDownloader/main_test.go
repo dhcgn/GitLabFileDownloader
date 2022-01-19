@@ -34,7 +34,7 @@ func Test_main_mode_file(t *testing.T) {
 		t.Error(err)
 	}
 
-	setFlags(filePath)
+	setFlagsFile(filePath)
 
 	api.HttpGetFunc = func(url string, s internal.Settings) ([]byte, error) {
 		return []byte(`{
@@ -111,6 +111,81 @@ func Test_main_mode_file(t *testing.T) {
 		})
 	}
 }
+func Test_main_mode_folder(t *testing.T) {
+	err, folder := getTempFolderPath()
+	if err != nil {
+		t.Error(err)
+	}
+
+	setFlagsFolder(folder)
+
+	api.HttpGetFunc = func(url string, s internal.Settings) ([]byte, error) {
+		if strings.Contains(url, `/repository/tree/?ref=master`) {
+			return []byte(`[
+				{
+					"id": "1e85ff777250e0d0ba1dd079ff562e40784307e1",
+					"name": "file1.txt",
+					"type": "blob",
+					"path": "test_dir/file1.txt",
+					"mode": "100644"
+				}
+			]`), nil
+		}
+		if strings.Contains(url, `repository/files/test_dir%2Ffile1.txt?ref=master`) {
+			return []byte(`{
+				"file_name": "file1.txt",
+				"file_path": "test_dir/file1.txt",
+				"size": 12,
+				"encoding": "base64",
+				"content_sha256": "11c014f2e9aa58bb56e6a489298ea61a3903c3e632c5aaec5d135996cab0b24e",
+				"ref": "master",
+				"blob_id": "1e85ff777250e0d0ba1dd079ff562e40784307e1",
+				"commit_id": "726a84679597812d8085085f742fb5ddba8a0299",
+				"last_commit_id": "9bc24ea56f8862e5964c9f4ee71dab7396902b9f",
+				"content": "VGVzdCBGaWxlIDEK"
+			}`), nil
+		}
+		return nil, fmt.Errorf("Unknown URL %v", url)
+	}
+
+	var output string
+
+	tests := []struct {
+		name        string
+		prepare     func()
+		wantContent []string
+	}{
+		{
+			name: "No Folder",
+			prepare: func() {
+
+			},
+			wantContent: []string{"Wrote"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare()
+
+			output = captureOutput(func() {
+				main()
+			})
+
+			for _, line := range tt.wantContent {
+				if !strings.Contains(output, line) {
+					t.Errorf("main() got console output = \"%v\", want \"%v\"", output, line)
+				}
+			}
+
+			err := os.RemoveAll(folder)
+			if err != nil {
+				t.Error(err)
+			}
+			log.SetOutput(nil)
+		})
+	}
+}
 
 func getTempFilePath() (error, string) {
 	tmpfileTarget, _ := ioutil.TempFile("", "golang-test.*")
@@ -127,12 +202,50 @@ func getTempFilePath() (error, string) {
 	return nil, filePath
 }
 
-func setFlags(path string) {
+func getTempFolderPath() (error, string) {
+	filePath, _ := ioutil.TempDir("", "golang-test.*")
+	return nil, filePath
+}
+
+func setFlagsFile(path string) {
 	filePath := "settings.json"
 	flagRepoFilePathPar = &filePath
 
 	outPath := path
 	flagOutPathPtr = &outPath
+
+	filefolder := ""
+	flagRepoFolderPathPtr = &filefolder
+
+	outFolder := ""
+	flagOutFolderPtr = &outFolder
+
+	projectNumber := 16447351
+	flagProjectNumberPtr = &projectNumber
+
+	url := "https://gitlab.com/api/v4/"
+	flagUrlPtr = &url
+
+	// This token for https://gitlab.com/gitLabFileDownloader/test-project/blob/master/settings.json
+	token := "5BUJpxdVx9fyq5KrXJx6"
+	flagTokenPtr = &token
+
+	branch := "master"
+	flagBranchPtr = &branch
+}
+
+func setFlagsFolder(folder string) {
+	filePath := ""
+	flagRepoFilePathPar = &filePath
+
+	outPath := ""
+	flagOutPathPtr = &outPath
+
+	filefolder := "test_dir"
+	flagRepoFolderPathPtr = &filefolder
+
+	outFolder := folder
+	flagOutFolderPtr = &outFolder
 
 	projectNumber := 16447351
 	flagProjectNumberPtr = &projectNumber
