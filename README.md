@@ -10,6 +10,19 @@ Download a file from a GitLab server and save it to disk if file is different.
 
 See Releases
 
+## Scopes for personal access tokens
+
+- `read_repository`: Allows read-access to the repository files.
+- `api`: Allows read-write access to the repository files.
+
+## TLS Security
+
+```go
+tr := &http.Transport{
+	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+}
+```
+
 ## Using
 
 ```plain
@@ -33,6 +46,8 @@ Usage of gitlabfiledownloader.exe:
 
 ## Use Case
 
+### Download file from your gitlab repository 
+
 You want to have the benefits from git to manage your config files.
 With this (windows and linux) tool you can now download theses config files from an on-promise GitLab instance and save them to disk.
 
@@ -40,4 +55,10 @@ The file will be **only** replaced if the hash is different (from disk to git).
 
 ```bat
 gitlabfiledownloader.exe -outPath settings.json -projectNumber 16447351 -repoFilePath settings.json -token 5BUJpxdVx9fyq5KrXJx6 -url https://gitlab.com/api/v4/
+```
+
+### Download folder from your gitlab repository 
+
+```bat
+gitlabfiledownloader.exe -outFolder test_dir -projectNumber 16447351 -repoFolder test_dir -token 5BUJpxdVx9fyq5KrXJx6 -url https://gitlab.com/api/v4/
 ```
