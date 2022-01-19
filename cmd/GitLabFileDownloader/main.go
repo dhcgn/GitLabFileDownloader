@@ -15,8 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/dhcgn/GitLabFileDownloader/cmd/GitLabFileDownloader/updater"
 )
 
 const (
@@ -28,7 +26,6 @@ const (
 	flagUrl           = "url"
 	flagProjectNumber = "projectNumber"
 	flagRepoFilePath  = "repoFilePath"
-	flagUpdate        = "update"
 )
 
 var (
@@ -41,8 +38,6 @@ var (
 	flagUrlPtr           = flag.String(flagUrl, ``, "Url to Api v4, like https://my-git-lab-server.local/api/v4/")
 	flagProjectNumberPtr = flag.Int(flagProjectNumber, 0, "The Project ID from your project")
 	flagRepoFilePathPar  = flag.String(flagRepoFilePath, ``, "File path in repo, like src/main.go")
-
-	flagUpdatePtr = flag.Bool(flagUpdate, false, "Update executable from equinox.io")
 
 	exitCode int
 )
@@ -70,19 +65,7 @@ func mainSub(args []string) {
 	log.Println(AppName, "Version:", version)
 	log.Println(`Project: https://github.com/dhcgn/GitLabFileDownloader/`)
 
-	if len(args) == 2 && args[1] == "update" {
-		updater.EquinoxUpdate()
-		Exit(2)
-		return
-	}
-
 	flag.Parse()
-
-	if *flagUpdatePtr == true {
-		updater.EquinoxUpdate()
-		Exit(2)
-		return
-	}
 
 	settings := getSettings()
 	isValid, args := isSettingsValid(settings)
