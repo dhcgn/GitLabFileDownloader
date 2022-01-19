@@ -27,8 +27,6 @@ Usage of gitlabfiledownloader.exe:
         File path in repo, like src/main.go
   -token string
         Private-Token with access right for "api" and "read_repository"
-  -update
-        Update executable from equinox.io
   -url string
         Url to Api v4, like https://my-git-lab-server.local/api/v4/
 ```
