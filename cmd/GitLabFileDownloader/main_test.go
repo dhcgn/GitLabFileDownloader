@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 )
 
 func Test_main_no_arguments(t *testing.T) {
@@ -26,50 +25,7 @@ func Test_main_no_arguments(t *testing.T) {
 	}
 }
 
-func Test_main_update(t *testing.T) {
-	tests := []struct {
-		name    string
-		args []string
-		prepare func()
-	}{
-		{
-			name: "Use Flag",
-			args:[]string{""},
-			prepare: func() {
-				updateflag := true
-				flagUpdatePtr = &updateflag
-			},
-		},
-		{
-			name: "Use Args",
-			args:[]string{"", "update"},
-			prepare: func() {
-				updateflag := false
-				flagUpdatePtr = &updateflag
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.prepare()
-
-			output := captureOutput(func() {
-				mainSub(tt.args)
-				time.Sleep(time.Millisecond*100)
-			})
-
-			// fmt.Println(output)
-
-			expectedString := "Starting update"
-			if !strings.Contains(output, expectedString) {
-				t.Errorf("main() got console output = \"%v\", want \"%v\"", output, expectedString)
-			}
-		})
-	}
-}
-
-func Test_main_use_cases(t *testing.T) {
+func Test_main_integration(t *testing.T) {
 	err, filePath := getTempFilePath()
 	if err != nil {
 		t.Error(err)
@@ -164,9 +120,6 @@ func getTempFilePath() (error, string) {
 }
 
 func setFlags(path string) {
-	update := false
-	flagUpdatePtr = &update
-
 	filePath := "settings.json"
 	flagRepoFilePathPar = &filePath
 
