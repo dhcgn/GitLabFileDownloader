@@ -23,7 +23,7 @@ if ((Get-Command Go -ErrorAction Ignore) -eq $null) {
 }
 
 $appName = "gdown"
-$version = "1.1.0"
+$version = "2.1.0"
 $publishFolder = "publish"
 $debugFolder = "debug"
 
@@ -42,8 +42,9 @@ $platforms += @{GOOS = "windows"; GOARCH = "amd64"; }
 $platforms += @{GOOS = "linux"; GOARCH = "amd64"; }
 #$platforms += @{GOOS = "linux"; GOARCH = "386"; }
 #$platforms += @{GOOS = "linux"; GOARCH = "arm"; }
-#$platforms += @{GOOS = "linux"; GOARCH = "arm64"; }
-#$platforms += @{GOOS = "darwin"; GOARCH = "amd64"; }
+$platforms += @{GOOS = "linux"; GOARCH = "arm64"; }
+$platforms += @{GOOS = "darwin"; GOARCH = "amd64"; }
+$platforms += @{GOOS = "darwin"; GOARCH = "arm64"; }
 
 # Clean Up
 
