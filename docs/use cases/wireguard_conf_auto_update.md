@@ -26,7 +26,7 @@ $reproFilePath = 'wg0.ini' # Filename from saved config in GitLab
 $conf = '/root/wg0.conf'
 $wgInterface = 'wg0'
 
-/usr/local/bin/gitlabfiledownloader -reproFilePath $reproFilePath -outPath $conf -projectNumber $projectNumber -url https://gitlab.com/api/v4/ -token $token
+/usr/local/bin/gdown -reproFilePath $reproFilePath -outPath $conf -projectNumber $projectNumber -url https://gitlab.com/api/v4/ -token $token
 if ($LASTEXITCODE -eq 0) {
     Write-Host 'Update wg conf'
     wg setconf $wgInterface $conf
