@@ -1,4 +1,4 @@
-# GitLabFileDownloader
+# GitLabFileDownloader (gdown)
 
 ![Go](https://github.com/dhcgn/GitLabFileDownloader/workflows/Go/badge.svg)
 [![codecov](https://codecov.io/gh/dhcgn/GitLabFileDownloader/branch/master/graph/badge.svg)](https://codecov.io/gh/dhcgn/GitLabFileDownloader)
